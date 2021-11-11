@@ -16,7 +16,7 @@ type Branch struct {
 }
 
 func (branch Branch) String() string {
-	return fmt.Sprintf("%s, isCurrent %t, pointsTo: %s, remote:%s", branch.Name, branch.IsCurrent, branch.PointsTo, branch.Remote)
+	return fmt.Sprintf("%s, isCurrent: %t, pointsTo: %s, remote:%s", branch.Name, branch.IsCurrent, branch.PointsTo, branch.Remote)
 }
 
 func ReadBranches(baseDir string) ([]Branch, error) {
@@ -82,4 +82,3 @@ func parseBranchesOutput(bytes []byte) []Branch {
 	}
 	return branches
 }
-
