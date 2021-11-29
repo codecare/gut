@@ -44,14 +44,6 @@ func main() {
 			gut.DeleteLocalBranches(baseDir, branchesToDelete)
 		}
 	}
-
-	fmt.Print("To delete all local references to remote branches please type y or yes: ")
-	input := bufio.NewScanner(os.Stdin)
-	input.Scan()
-	if input.Text() == "y" || input.Text() == "yes" {
-		// delete local references to remote branches
-		gut.DeleteLocalReferenceRemoteBranch(baseDir)
-	}
 }
 
 func analyseMerged(branches []gut.Branch, baseDir, targetBranchName string) ([]string, error) {

@@ -21,7 +21,7 @@ func (branch Branch) String() string {
 
 func FetchAndPull(baseDir string) {
 
-	command := exec.Command("git", "fetch")
+	command := exec.Command("git", "fetch", "-p")
 	command.Dir = baseDir
 	command.Env = append(os.Environ(),
 		"LANG=en_US.UTF-8")
@@ -60,21 +60,6 @@ func DeleteLocalBranches(baseDir string, branchesToDelete []string) {
 		} else {
 			fmt.Printf("Deleting local branches & references to remote branches:\n%s\n", out)
 		}
-	}
-}
-
-func DeleteLocalReferenceRemoteBranch(baseDir string) {
-
-	command := exec.Command("git", "remote", "prune", "origin")
-	command.Dir = baseDir
-	command.Env = append(os.Environ(),
-		"LANG=en_US.UTF-8") // go likes utf-8
-
-	out, err := command.CombinedOutput()
-	if err != nil {
-		fmt.Printf("Couldn't prune, error: %s\n", err)
-	} else {
-		fmt.Printf("Deleting local references to remote branches:\n%s\n", out)
 	}
 }
 
