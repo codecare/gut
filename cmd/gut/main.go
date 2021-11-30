@@ -3,8 +3,9 @@ package main
 import (
 	"errors"
 	"fmt"
-	"github.com/codecare/gut/internal/gut"
 	"os"
+
+	"github.com/codecare/gut/internal/gut"
 )
 
 func main() {
@@ -27,13 +28,12 @@ func main() {
 		panic(err)
 	}
 	/*
-	commits, err := gut.GetAllCommits(baseDir, "develop")
-	if err != nil {
-		panic(err)
-	}*/
+		commits, err := gut.GetAllCommits(baseDir, "develop")
+		if err != nil {
+			panic(err)
+		}*/
 	// gut.PrintCommits(commits)
 	// analyseMergeCommits(commits)
-
 
 }
 
@@ -63,7 +63,7 @@ func analyseMerged(branches []gut.Branch, baseDir, targetBranchName string) erro
 		if err != nil {
 			return err
 		}
-		fmt.Printf("#########\nanalyis of %s in respect to %s \nanalysis result: %s\n ", branch.Name, targetBranchName, branchMergeAnalysis)
+		fmt.Printf("#########\nanalysis of %s in respect to %s \nanalysis result: %s\n", branch.Name, targetBranchName, branchMergeAnalysis)
 
 	}
 	return nil
@@ -81,12 +81,12 @@ func analyseBranch(branchToAnalyse gut.Branch, targetBranchName string, baseDir 
 		// fmt.Printf("top commit of branch %s: %s\n", branchToAnalyse.Name, topCommitOfBranch)
 		mergeCommit, err := findMergeCommit(allCommitsOfTarget, topCommitOfBranch)
 		if err != nil {
-			fmt.Printf("no merge commit found for branch %s\n", targetBranchName)
+			fmt.Printf("### No merge commit found for branch %s\n", branchToAnalyse.Name)
 			return BranchMergeAnalysis{
-				mergeType:             PartiallyCherryPicked, // actually this is just a guess - TODO
-				branchAnalysed:        branchToAnalyse,
-				topCommitOfBranch:     topCommitOfBranch,
-				targetBranchName:      targetBranchName,
+				mergeType:         PartiallyCherryPicked, // actually this is just a guess - TODO
+				branchAnalysed:    branchToAnalyse,
+				topCommitOfBranch: topCommitOfBranch,
+				targetBranchName:  targetBranchName,
 			}, nil
 		} else {
 			fmt.Printf("### %s was merged in commit %s into %s\n", branchToAnalyse.Name, mergeCommit, targetBranchName)
@@ -100,9 +100,9 @@ func analyseBranch(branchToAnalyse gut.Branch, targetBranchName string, baseDir 
 		}
 	}
 	return BranchMergeAnalysis{
-		mergeType:             SameBranch,
-		branchAnalysed:        branchToAnalyse,
-		targetBranchName:      targetBranchName,
+		mergeType:        SameBranch,
+		branchAnalysed:   branchToAnalyse,
+		targetBranchName: targetBranchName,
 	}, nil
 }
 
@@ -125,10 +125,10 @@ func isParentCommit(branchToCheck gut.Commit, potentialParent gut.Commit) bool {
 }
 
 type BranchMergeAnalysis struct {
-	mergeType MergeType
-	branchAnalysed gut.Branch
-	topCommitOfBranch gut.Commit
-	targetBranchName string
+	mergeType             MergeType
+	branchAnalysed        gut.Branch
+	topCommitOfBranch     gut.Commit
+	targetBranchName      string
 	mergeCommitIntoTarget gut.Commit
 }
 type MergeType int
@@ -147,23 +147,26 @@ func (mergeType MergeType) String() string {
 func (branchMergeAnalysis BranchMergeAnalysis) String() string {
 
 	switch branchMergeAnalysis.mergeType {
-		case SameBranch: {
+	case SameBranch:
+		{
 			return fmt.Sprintf("%s is same branch as %s\n", branchMergeAnalysis.branchAnalysed.Name, branchMergeAnalysis.targetBranchName)
 		}
-		case FullyMerged: {
+	case FullyMerged:
+		{
 			result := fmt.Sprintf("%s %s in %s\n", branchMergeAnalysis.mergeType, branchMergeAnalysis.branchAnalysed.Name, branchMergeAnalysis.targetBranchName)
 			result += fmt.Sprintf("merge commit: %v\n", branchMergeAnalysis.mergeCommitIntoTarget)
 			result += fmt.Sprintf("top commit of branch: %v\n", branchMergeAnalysis.topCommitOfBranch)
 			return result
 		}
-		case PartiallyCherryPicked: {
+	case PartiallyCherryPicked:
+		{
 			return fmt.Sprintf("%s %s in %s\n", branchMergeAnalysis.mergeType, branchMergeAnalysis.branchAnalysed.Name, branchMergeAnalysis.targetBranchName)
 		}
-		case NotMerged: {
+	case NotMerged:
+		{
 			return fmt.Sprintf("%s %s in %s\n", branchMergeAnalysis.mergeType, branchMergeAnalysis.branchAnalysed.Name, branchMergeAnalysis.targetBranchName)
 		}
 
 	}
 	return ""
 }
-

@@ -19,6 +19,50 @@ func (branch Branch) String() string {
 	return fmt.Sprintf("%s, isCurrent: %t, pointsTo: %s, remote:%s", branch.Name, branch.IsCurrent, branch.PointsTo, branch.Remote)
 }
 
+func FetchAndPull(baseDir string) {
+
+	command := exec.Command("git", "fetch", "-p")
+	command.Dir = baseDir
+	command.Env = append(os.Environ(),
+		"LANG=en_US.UTF-8")
+
+	out, err := command.CombinedOutput()
+	if err != nil {
+		fmt.Printf("Couldn't fetch, error: %s\n", err)
+	} else {
+		fmt.Printf("successfully fetch command executed: %s\n", out)
+	}
+
+	command2 := exec.Command("git", "pull")
+	command2.Dir = baseDir
+	command2.Env = append(os.Environ(),
+		"LANG=en_US.UTF-8")
+
+	out, err = command2.CombinedOutput()
+	if err != nil {
+		fmt.Printf("Couldn't pull, error: %s\n", err)
+	} else {
+		fmt.Printf("successfully pull command executed: %s\n", out)
+	}
+}
+
+func DeleteLocalBranches(baseDir string, branchesToDelete []string) {
+
+	for _, branch := range branchesToDelete {
+		command := exec.Command("git", "branch", "-d", branch)
+		command.Dir = baseDir
+		command.Env = append(os.Environ(),
+			"LANG=en_US.UTF-8") // go likes utf-8
+
+		out, err := command.CombinedOutput()
+		if err != nil {
+			fmt.Printf("Couldn't delete branch %s, error: %s\n", branch, err)
+		} else {
+			fmt.Printf("Deleting local branch %s: %s\n", branch, out)
+		}
+	}
+}
+
 func ReadBranches(baseDir string) ([]Branch, error) {
 
 	command := exec.Command("git", "branch", "-a")
@@ -65,13 +109,14 @@ func parseBranchesOutput(bytes []byte) []Branch {
 		}
 
 		remote := ""
+		var fullBranchName = branchName
 		index = strings.Index(branchName, "remotes/")
 		if index == 0 {
 			branchName = branchName[8:]
 			index = strings.Index(branchName, "/")
 			if index > 0 {
 				remote = branchName[:index]
-				branchName = branchName[index+1:]
+				branchName = fullBranchName
 			} else {
 				panic("remote cannot be parsed " + branchName)
 			}
