@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"strconv"
 	"strings"
 
 	"github.com/codecare/gut/internal/gut"
@@ -20,13 +21,14 @@ func main() {
 	var targetBranch = os.Args[2]
 
 	// fetch and pull changes to update project
-	gut.FetchAndPull(baseDir)
+	//gut.FetchAndPull(baseDir)
 
 	// get all branches (local + remote) & print branch view
 	branches, err := gut.ReadBranches(baseDir)
 	if err != nil {
 		panic(err)
 	}
+	fmt.Print("List of branches of the project " + baseDir + "\n\n")
 	gut.PrintBranches(branches)
 
 	// analyse Merging commits to decide which local branch to delete
@@ -34,14 +36,30 @@ func main() {
 	if err != nil {
 		panic(err)
 	} else {
-		var output = strings.Join(branchesToDelete, `, `)
-		fmt.Printf("The following branches are merged to %s and therefore can be deleted \n%s\n", targetBranch, output)
-		fmt.Print("Do you really want to delete them? Type y or yes to confirm: ")
+		fmt.Printf("\n\nThe following branches are merged to %s and therefore can be deleted: \n", targetBranch)
+		for i, branch := range branchesToDelete {
+			fmt.Println(strconv.Itoa(i+1) + "- " + branch)
+		}
+		fmt.Print("\nType numbers of branches from the list you want to delete or type 'a' or 'all' to delete all branches: ")
 		input := bufio.NewScanner(os.Stdin)
 		input.Scan()
-		if input.Text() == "y" || input.Text() == "yes" {
-			// delete local branches
+		if input.Text() == "a" || input.Text() == "all" {
+			// delete all local branches
 			gut.DeleteLocalBranches(baseDir, branchesToDelete)
+		} else {
+			var array []string
+			for _, value := range strings.Fields(input.Text()) {
+				if index, err := strconv.Atoi(value); err == nil && index <= len(branchesToDelete) {
+					array = append(array, branchesToDelete[index-1])
+				} else {
+					fmt.Print("Input error, please type numbers from the list above\n")
+					// reset array in case of input error so nothing will be deleted
+					array = []string{}
+					break
+				}
+			}
+			// delete selected local branches
+			gut.DeleteLocalBranches(baseDir, array)
 		}
 	}
 }

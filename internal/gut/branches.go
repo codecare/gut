@@ -56,9 +56,9 @@ func DeleteLocalBranches(baseDir string, branchesToDelete []string) {
 
 		out, err := command.CombinedOutput()
 		if err != nil {
-			fmt.Printf("Couldn't prune, error: %s\n", err)
+			fmt.Printf("Couldn't delete branch %s, error: %s\n", branch, err)
 		} else {
-			fmt.Printf("Deleting local branches & references to remote branches:\n%s\n", out)
+			fmt.Printf("Deleting local branch %s: %s\n", branch, out)
 		}
 	}
 }
