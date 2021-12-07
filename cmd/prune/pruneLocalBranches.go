@@ -13,22 +13,30 @@ import (
 
 func main() {
 
-	if len(os.Args) < 3 {
-		fmt.Println("plaese add more arguments: Project path + branch name")
+	if len(os.Args) < 2 {
+		fmt.Println("plaese add more arguments: Project path")
 		os.Exit(1)
 	}
 	var baseDir = os.Args[1]
-	var targetBranch = os.Args[2]
+	targetBranch, err := gut.GetDefaultBranch(baseDir)
+	if err != nil {
+		panic(err)
+	}
+
+	projectUrl, err := gut.GetProjectURL(baseDir)
+	if err != nil {
+		panic(err)
+	}
 
 	// fetch and pull changes to update project
-	//gut.FetchAndPull(baseDir)
+	gut.FetchAndPull(baseDir)
 
 	// get all branches (local + remote) & print branch view
 	branches, err := gut.ReadBranches(baseDir)
 	if err != nil {
 		panic(err)
 	}
-	fmt.Print("List of branches of the project " + baseDir + "\n\n")
+	fmt.Print("List of local branches of the project with url: " + projectUrl + "\n")
 	gut.PrintBranches(branches)
 
 	// analyse Merging commits to decide which local branch to delete

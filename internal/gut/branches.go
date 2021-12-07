@@ -19,6 +19,38 @@ func (branch Branch) String() string {
 	return fmt.Sprintf("%s, isCurrent: %t, pointsTo: %s, remote:%s", branch.Name, branch.IsCurrent, branch.PointsTo, branch.Remote)
 }
 
+func GetDefaultBranch(baseDir string) (string, error) {
+
+	command := exec.Command("bash", "-c", "git remote show origin | grep 'HEAD branch' | cut -d' ' -f5")
+	command.Dir = baseDir
+	command.Env = append(os.Environ(),
+		"LANG=en_US.UTF-8")
+
+	out, err := command.CombinedOutput()
+	if err != nil {
+		return string(out), err
+	} else {
+		return strings.TrimSuffix(string(out), "\n"), nil
+	}
+
+}
+
+func GetProjectURL(baseDir string) (string, error) {
+
+	command := exec.Command("git", "config", "--get", "remote.origin.url")
+	command.Dir = baseDir
+	command.Env = append(os.Environ(),
+		"LANG=en_US.UTF-8")
+
+	out, err := command.CombinedOutput()
+	if err != nil {
+		return string(out), err
+	} else {
+		return string(out), nil
+	}
+
+}
+
 func FetchAndPull(baseDir string) {
 
 	command := exec.Command("git", "fetch", "-p")
@@ -29,6 +61,7 @@ func FetchAndPull(baseDir string) {
 	out, err := command.CombinedOutput()
 	if err != nil {
 		fmt.Printf("Couldn't fetch, error: %s\n", err)
+		os.Exit(1)
 	} else {
 		fmt.Printf("successfully fetch command executed: %s\n", out)
 	}
@@ -41,6 +74,7 @@ func FetchAndPull(baseDir string) {
 	out, err = command2.CombinedOutput()
 	if err != nil {
 		fmt.Printf("Couldn't pull, error: %s\n", err)
+		os.Exit(1)
 	} else {
 		fmt.Printf("successfully pull command executed: %s\n", out)
 	}
